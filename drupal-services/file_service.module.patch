@@ -1,0 +1,11 @@
+--- services/services/file_service/file_service.module.orig	2010-05-13 11:30:43.000000000 -0400
++++ services/services/file_service/file_service.module	2010-05-13 11:31:23.000000000 -0400
+@@ -55,7 +55,7 @@ function file_service_service() {
+     array(
+       '#method'           => 'file.save',
+       '#callback'         => 'file_service_save',
+-      '#access arguments' => array('save file information'),
++      '#access callback'  => 'file_service_save_access',
+       '#file'             => array('file' => 'inc', 'module' => 'file_service'),
+       '#args'             => array(
+         array(

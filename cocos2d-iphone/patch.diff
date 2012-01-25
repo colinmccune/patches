@@ -1,0 +1,12 @@
+Index: CDAudioManager.m
+===================================================================
+--- CDAudioManager.m	(revision 350)
++++ CDAudioManager.m	(working copy)
+@@ -448,6 +448,7 @@
+ 	[self stopBackgroundMusic];
+ 	[soundEngine release];
+ 	[[NSNotificationCenter defaultCenter] removeObserver:self];
++        [[AVAudioSession sharedInstance] setDelegate:nil];
+ 	[self audioSessionSetActive:NO];
+ 	[audioSourceChannels release];
+ 	[super dealloc];

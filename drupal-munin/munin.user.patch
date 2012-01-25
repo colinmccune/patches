@@ -1,0 +1,11 @@
+--- munin_default.module	2010-09-09 16:31:57.000000000 -0400
++++ munin_default.module.fix	2010-09-09 16:32:26.000000000 -0400
+@@ -27,7 +27,7 @@ function munin_default_muninplugin() {
+   $plugins['user']['curuser'] = array(
+     '#label' => t('Currently logged in user'),
+     '#description' => t('This item shows the number of currently logged in users.'),
+-    '#type' => 'GAUGE ',
++    '#type' => 'GAUGE',
+     '#statement' => 'select count(uid) from {users} where unix_timestamp() - access < (60*5)',
+   );
+   $plugins['user']['newuser'] = array(

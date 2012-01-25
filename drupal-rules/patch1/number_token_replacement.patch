@@ -1,0 +1,48 @@
+--- rules/rules.module	2010-04-26 15:27:48.000000000 -0400
++++ rules/rules.module.fix	2010-04-26 15:26:57.000000000 -0400
+@@ -1030,11 +1030,18 @@ function rules_rule_format_upgrade($rule
+  * useful than the rules variables in themselves.
+  */
+ function rules_token_list($type = 'all') {
++  $tokens = array();
++
+   if ($type == 'string' || $type == 'all') {
+     $tokens['string']['string']          = t("The string, passed through check_plain");
+     $tokens['string']['string-raw']      = t("The string, raw and unfiltered");
+-    return $tokens;
+   }
++
++  if ($type == 'number' || $type == 'all') {
++    $tokens['number']['number'] = t("The number");
++  }
++
++  return $tokens;
+ }
+ 
+ /**
+@@ -1043,12 +1050,22 @@ function rules_token_list($type = 'all')
+  * @see rules_token_list().
+  */
+ function rules_token_values($type, $object = NULL, $options = array()) {
++  
++  $values = array();
++
+   if ($type == 'string') {
+     $string = $object;
+-    $tokens['string']      = check_plain($string);
+-    $tokens['string-raw']  = $string;
+-    return $tokens;
++    $values['string']      = check_plain($string);
++    $values['string-raw']  = $string;
+   }
++
++  if ($type == 'number') {
++    $number = (float) $object;
++    $values['number'] = $number;
++  }
++
++  return $values;
++
+ }
+ 
+ /**

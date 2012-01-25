@@ -1,0 +1,102 @@
+# Duplicate order notification e-mail and duplicate stock decrement (644538)
+
+- Effects PayPal Web Payments Standard (WPS) and PayPal Express Checkout (EC) when Instant Payment Notification (IPN) is enabled and the user clicks the "Return to Store" link from the PayPal site. (Note: this is the typical configuration for an online store using WPS).
+- Bug reproducible on fresh 6.x-2.2 install.
+- Happens when using Live or Sandbox PayPal account.
+- The PayPal account has the default settings on paypal.com.
+- http://drupal.org/node/644538
+
+
+# What people are experiencing
+
+The following symptoms are observed:
+
+(S1) Customers receive two order emails. 
+(S2) Stock is decremented from the order twice.
+(S3) +More
+
+
+# Whats happening
+
+Two requests (asynchronous) both end up calling uc_cart_complete_sale(...).
+
+(R1) PayPal sends an IPN (http request) to Ubercart after a successful payment which marks the order status as payment received and then calls uc_cart_complete_sale(…).
+(R2) Customer clicks the "Return to store" link which also calls uc_cart_complete_sale(…) and then displays order complete page.
+
+The uc_cart_complete_sale(…) function invokes the uc_checkout_complete hook, triggers the uc_checkout_complete conditional actions, and more.  Because it has no checks preventing it from running twice you see the symptoms (S1), (S2), and (S3) mentioned above.
+
+
+# Tasks completed by uc_cart_complete_sale(…)
+
+A quick overview of what tasks uc_cart_complete_sale(…) handles:
+ 
+(T1) Create a new user if necessary 
+- (T1-A) If user with email already exists attach the order to that user account.
+- (T1-B) Otherwise create a new user, send them an email with login info, and optionally log them in.
+
+(T2) Generate default text for the order completion page (includes order number and new account info if it was generated).
+(T3) If order status is "in checkout" move it to "pending".
+(T4) Cleanup (empty cart and clear stuff stored in the session)
+(T5) Call hook uc_checkout_complete and trigger uc_checkout_complete conditional action.
+(T6) Return generated text to be used on checkout completion page.
+
+
+# Paypal Workflows
+
+Paypal has the following work flows and uc_paypal supports all of them:
+
+(W1) IPN enabled & customer returns to store by clicking the "Return to Store" link.
+
+  Case A: PayPal IPN request (R1) get's to Ubercart first then (R2) follows.
+    - (R1) moves order status into "Payment Received" and triggers uc_cart_complete_sale(…).
+    - (R2) triggers uc_cart_complete_sale again. Order status isn't changed as it is in "Payment Received" and not "In checkout" due to (R1).
+
+  Case B: User's gets back to the store (R2) first then (R1) follows.
+    - (R2) moves order status from "in checkout" to "pending" and triggers uc_cart_complete_sale(…).
+    - (R1) moves order status from "pending" to "Payment Received" and triggers uc_cart_complete_sale again.
+
+  Case C: (R1) and (R2) happen at the exact same time
+    - Rare but in theory this possible.
+
+(W1) is the problem workflow which causes duplicate emails, etc.
+
+
+Workflows (W2), (W3), and (W4) listed bellow are not part of this problem but are there for reference.
+
+
+(W2) IPN enabled & customer DOES NOT return to store using the link.
+- (R1) moves order status from "in checkout" to "Payment Received" and triggers uc_cart_complete_sale(…).
+
+(W3) IPN disabled & customer returns to store by click the "Return to Store" link.
+- Order completion page triggers uc_cart_complete_sale(…) moving order status into "pending".
+- It's up to the store manager to verify they got a PayPal payment and move the order into "Payment Received".
+ 
+(W4) IPN disabled & customer DOES NOT return to store using the link.
+- Ubercart never finds out about the payment so the order status stays at "In checkout".
+- It is up to the store manager to look at their PayPal order email and adjust the order.
+- uc_cart_complete_sale(…) is NOT triggered and (T1 -> T6) DO NOT run. (No order email, stock decrease, etc).
+- This is a bad workflow but I'm sure someone would argue its better then nothing.
+
+
+# Possible solutions
+
+(S1) Modifying uc_cart_complete_sale(…) to only perform certain tasks once
+
+It makes sense that (R1) and (R2) both call uc_cart_complete_sale(…) so that cases (W2) and (W3) work correctly.  (W4) never returns to the site so we don't need to worry about it. As stated above (W1) is the problem because uc_cart_complete_sale(…) is called twice.
+
+If uc_cart_complete_sale(…) checks for a flag (eg: complete_sale_completed) which would indicate if the function was running for a second time for the same order it could skip (T1), (T3), and (T5).  By default the flag wouldn't be set so the function would run like normal (T1 - T6) when called for the first time which should play nice for all the other payment modules that make use of uc_cart_complete_sale(…).
+
+Modifying uc_cart_complete_sale(...) is probably not ideal but I would bet other payment systems have a similar work flow as pay pal and this could help them out as well. Also, it seems wise to have a safety check so that it's actions cannot be called twice for the same order.
+
+@see 644538_20100518.patch - a working implementation of (S1)
+
+(S2) Modify uc_paypal 
+
+It's likely possible to confine the fix to only code in the uc_paypal module. However, as some of the tasks completed in uc_cart_complete_sale(…) must be run for both (R1) and (R2) (eg: T2, T4, T6) we would need to duplicate their logic inside the uc_paypal module which is not ideal and (S1) makes more sense to me.
+
+
+# Existing problems that the solutions above don't fix
+
+(EP1) Ubercart provides an option for automatically logging in a new user which was created during an anonymous checkout (T1-B). In the case of (W1: A) and (W2) the automatic login never happens because the new account (user name and password) is generated on (R1) and the request from PayPal doesn't have access to the customers session and thus cannot programatically log them in (unless I am missing something). It can still create the account and email the customer the login and password which is the important part. It should be noted that when (R2) rolls in the account will now be created and (T1) will be skipped and when (T2) runs it doesn't know the new users password anymore so the password it cannot be included in the checkout complete text.  This problem exists in the current code.  My thoughts are that this feature isn't something you can have when using WPS and IPN unless you want to store the unhashed password in the order's object data which seems like a bad idea to me.
+
+(EP2) Because (R1) and (R2) are asynchronous it's possible for them to arrive at the same time (W1 Case C) which would break the solutions mentioned above. One solution I came up with was to use Drupal's locking functions within uc_paypal to allow only one request (R1 or R2) to access uc_cart_complete_sale(…) at a time. Using a lock is a bit ugly but it will be confined to uc_paypal only. There isn't much point dealing with this issue until a consensus has been reached on the larger issue at hand.

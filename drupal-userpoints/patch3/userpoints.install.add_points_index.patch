@@ -1,0 +1,22 @@
+--- userpoints.install.original	2010-05-07 14:46:58.000000000 -0400
++++ userpoints.install	2010-05-07 14:43:39.000000000 -0400
+@@ -49,6 +49,8 @@ function userpoints_schema() {
+     'indexes' => array(
+       'last_update' => array('last_update'),
+       'uid_tid' => array('uid', 'tid'),
++      //Optional as in update_6013
++      'points' => array('points'),
+     ),
+   );
+   
+@@ -281,3 +283,10 @@ function userpoints_update_6012() {
+   db_add_index($ret, 'userpoints_txn', 'status_expired_expiry', array('status', 'expired', 'expirydate'));
+   return $ret;
+ }
++
++function userpoints_update_6013() {
++  $ret = array();
++  //Optional: useful if you are comparing users points (eg: ranking)..
++  db_add_index($ret, 'userpoints', 'points', array('points'));
++  return $ret;
++}

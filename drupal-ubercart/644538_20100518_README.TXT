@@ -1,0 +1,25 @@
+# Bug
+
+Duplicate order notification e-mail and duplicate stock decrement (644538)
+
+# Effects
+
+- PayPal Web Payments Standard (WPS) and PayPal Express Checkout (EC) when Instant Payment Notification (IPN) is enabled and the user clicks the "Return to Store" link from the PayPal site. (Note: this is the typical configuration for an online store using WPS).
+
+# Patch Overview
+
+uc_cart_complete_sale(...) has been modified so that it only runs key actions (triggers, hooks, etc) once even when the function is called twice which is what happens under certain work flows for PayPal Web Payments Standard and PayPal Express.
+
+Patch needs to be applied against 6.x-2.2
+> cd ubercart
+> patch -p0 < /path/to/644538_20100518.patch
+
+# Patch Details
+
+- Introduced the uc_cart_complete_sale_completed flag which is stored in the order data field and is used to indicate if the uc_cart_complete_sale(...) function is running for the first time or not.
+
+- The uc_checkout_complete hook and ca trigger is only trigged the first time uc_cart_complete_sale(...) is called.
+
+- The order's user_type (new_user, logged_in, existing_user, logged_in) is now stored with the order data so that subsequent calls to uc_cart_complete_sale(...) will know the original value and can generate the appropriate order completion html.
+
+- If a new user account is created the information is stored with the order object for the same reasons mentioned above. It is also stored in the session (for the duration of the request) so that existing code for email templates/token replacement/etc do not need to be modified to implement this fix. The password is not saved in the order object for security reasons and instead will be replaced with ***** when any subsequent calls to uc_cart_complete_sale(...) require the password. This is done because it is not safe to store the unhashed password along with the order data.
