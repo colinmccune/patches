@@ -1,0 +1,15 @@
+diff --git a/splash.module b/splash.module
+index 0df1656..c457ba8 100644
+--- a/splash.module
++++ b/splash.module
+@@ -83,8 +83,8 @@ function splash_init() {
+ 	} elseif ($_GET['q'] != drupal_get_normal_path(variable_get('site_frontpage', 'node'))) {
+   	$splash = FALSE;
+   	$reason = 'We are not on the front page';
+-  // We come from an internal page
+-  } elseif (($parsed_url = parse_url($base_url)) && stristr(referer_uri(), $parsed_url['host'])) {
++  // We came from an internal page (referer url starts with sites base url)
++  } elseif (stripos(referer_uri(), $base_url, 0) === 0) {
+   	$splash = FALSE;
+     $reason = 'We come from an internal page';
+   // Front page is splash page?!
