@@ -1,0 +1,330 @@
+From 31a34ab214aca5c9f5de71bcabb4d2ad1adaadd9 Mon Sep 17 00:00:00 2001
+From: Colin McCune <colin@zincroe.com>
+Date: Fri, 27 Jul 2012 16:32:43 -0400
+Subject: [PATCH] Ported kaicherry's patch that fixed LLVM > 3 compile errors
+ in develop-v2 branch to the develop branch. This makes it
+ possible to compile cocos2d v1 with xcode 4.4. @see
+ https://github.com/cocos2d/cocos2d-iphone/commit/f09b1502651765401ffad12d2baf994c909d6c43
+
+---
+ cocos2d/CCAction.m                  |    2 +-
+ cocos2d/CCActionInstant.m           |    2 +-
+ cocos2d/CCAnimation.m               |    4 ++--
+ cocos2d/CCAnimationCache.m          |    2 +-
+ cocos2d/CCCamera.m                  |    2 +-
+ cocos2d/CCGrid.m                    |    2 +-
+ cocos2d/CCLabelBMFont.m             |    2 +-
+ cocos2d/CCLabelTTF.m                |    2 +-
+ cocos2d/CCNode.m                    |    2 +-
+ cocos2d/CCParticleBatchNode.m       |    2 +-
+ cocos2d/CCRibbon.m                  |    2 +-
+ cocos2d/CCScheduler.m               |    2 +-
+ cocos2d/CCSprite.m                  |    2 +-
+ cocos2d/CCSpriteBatchNode.m         |    2 +-
+ cocos2d/CCSpriteFrame.m             |    2 +-
+ cocos2d/CCSpriteFrameCache.m        |    2 +-
+ cocos2d/CCTMXXMLParser.m            |    2 +-
+ cocos2d/CCTexture2D.m               |    2 +-
+ cocos2d/CCTextureAtlas.m            |    2 +-
+ cocos2d/CCTextureCache.m            |    2 +-
+ cocos2d/Platforms/iOS/ES1Renderer.m |    2 +-
+ cocos2d/Support/CCArray.m           |    2 +-
+ 22 files changed, 23 insertions(+), 23 deletions(-)
+
+diff --git a/cocos2d/CCAction.m b/cocos2d/CCAction.m
+index 1649cfb..5fea8c2 100644
+--- a/cocos2d/CCAction.m
++++ b/cocos2d/CCAction.m
+@@ -64,7 +64,7 @@ -(void) dealloc
+ 
+ -(NSString*) description
+ {
+-	return [NSString stringWithFormat:@"<%@ = %08X | Tag = %i>", [self class], self, tag_];
++	return [NSString stringWithFormat:@"<%@ = %p | Tag = %i>", [self class], self, tag_];
+ }
+ 
+ -(id) copyWithZone: (NSZone*) zone
+diff --git a/cocos2d/CCActionInstant.m b/cocos2d/CCActionInstant.m
+index e7f6fad..bcf8e09 100644
+--- a/cocos2d/CCActionInstant.m
++++ b/cocos2d/CCActionInstant.m
+@@ -255,7 +255,7 @@ -(id) initWithTarget: (id) t selector:(SEL) s
+ 
+ -(NSString*) description
+ {
+-	return [NSString stringWithFormat:@"<%@ = %08X | Tag = %i | target = %@ | selector = %@>",
++	return [NSString stringWithFormat:@"<%@ = %p | Tag = %i | target = %@ | selector = %@>",
+ 			[self class],
+ 			self,
+ 			tag_,
+diff --git a/cocos2d/CCAnimation.m b/cocos2d/CCAnimation.m
+index b628ed9..d00e038 100644
+--- a/cocos2d/CCAnimation.m
++++ b/cocos2d/CCAnimation.m
+@@ -64,7 +64,7 @@ -(id) copyWithZone: (NSZone*) zone
+ 
+ -(NSString*) description
+ {
+-	return [NSString stringWithFormat:@"<%@ = %08X | SpriteFrame = %08X, delayUnits = %0.2f >", [self class], self, spriteFrame_, delayUnits_ ];
++	return [NSString stringWithFormat:@"<%@ = %p | SpriteFrame = %p, delayUnits = %0.2f >", [self class], self, spriteFrame_, delayUnits_ ];
+ }
+ @end
+ 
+@@ -140,7 +140,7 @@ -(id) initWithFrames:(NSArray*)arrayOfAnimationFrames delayPerUnit:(float)delayP
+ 
+ - (NSString*) description
+ {
+-	return [NSString stringWithFormat:@"<%@ = %08X | frames=%d, totalDelayUnits=%d, delayPerUnit=%f>", [self class], self,
++	return [NSString stringWithFormat:@"<%@ = %p | frames=%d, totalDelayUnits=%f, delayPerUnit=%f>", [self class], self,
+ 			[frames_ count],
+ 			totalDelayUnits_,
+ 			delayPerUnit_
+diff --git a/cocos2d/CCAnimationCache.m b/cocos2d/CCAnimationCache.m
+index ab698c8..d88f1ac 100644
+--- a/cocos2d/CCAnimationCache.m
++++ b/cocos2d/CCAnimationCache.m
+@@ -72,7 +72,7 @@ -(id) init
+ 
+ - (NSString*) description
+ {
+-	return [NSString stringWithFormat:@"<%@ = %08X | num of animations =  %i>", [self class], self, [animations_ count]];
++	return [NSString stringWithFormat:@"<%@ = %p | num of animations =  %i>", [self class], self, [animations_ count]];
+ }
+ 
+ -(void) dealloc
+diff --git a/cocos2d/CCCamera.m b/cocos2d/CCCamera.m
+index 1ef6655..ab5695f 100644
+--- a/cocos2d/CCCamera.m
++++ b/cocos2d/CCCamera.m
+@@ -43,7 +43,7 @@ -(id) init
+ 
+ - (NSString*) description
+ {
+-	return [NSString stringWithFormat:@"<%@ = %08X | center = (%.2f,%.2f,%.2f)>", [self class], self, centerX_, centerY_, centerZ_];
++	return [NSString stringWithFormat:@"<%@ = %p | center = (%.2f,%.2f,%.2f)>", [self class], self, centerX_, centerY_, centerZ_];
+ }
+ 
+ 
+diff --git a/cocos2d/CCGrid.m b/cocos2d/CCGrid.m
+index c2ed19d..a52a925 100644
+--- a/cocos2d/CCGrid.m
++++ b/cocos2d/CCGrid.m
+@@ -125,7 +125,7 @@ -(id)initWithSize:(ccGridSize)gSize
+ }
+ - (NSString*) description
+ {
+-	return [NSString stringWithFormat:@"<%@ = %08X | Dimensions = %ix%i>", [self class], self, gridSize_.x, gridSize_.y];
++	return [NSString stringWithFormat:@"<%@ = %p | Dimensions = %ix%i>", [self class], self, gridSize_.x, gridSize_.y];
+ }
+ 
+ - (void) dealloc
+diff --git a/cocos2d/CCLabelBMFont.m b/cocos2d/CCLabelBMFont.m
+index 147fc32..0b6fa9c 100644
+--- a/cocos2d/CCLabelBMFont.m
++++ b/cocos2d/CCLabelBMFont.m
+@@ -127,7 +127,7 @@ - (void) dealloc
+ 
+ - (NSString*) description
+ {
+-	return [NSString stringWithFormat:@"<%@ = %08X | Kernings:%d | Image = %@>", [self class], self,
++	return [NSString stringWithFormat:@"<%@ = %p | Kernings:%d | Image = %@>", [self class], self,
+ 			HASH_COUNT(kerningDictionary_),
+ 			atlasName_];
+ }
+diff --git a/cocos2d/CCLabelTTF.m b/cocos2d/CCLabelTTF.m
+index e20124b..36e62d4 100644
+--- a/cocos2d/CCLabelTTF.m
++++ b/cocos2d/CCLabelTTF.m
+@@ -153,6 +153,6 @@ - (NSString*) description
+ {
+ 	// XXX: string_, fontName_ can't be displayed here, since they might be already released
+ 
+-	return [NSString stringWithFormat:@"<%@ = %08X | FontSize = %.1f>", [self class], self, fontSize_];
++	return [NSString stringWithFormat:@"<%@ = %p | FontSize = %.1f>", [self class], self, fontSize_];
+ }
+ @end
+diff --git a/cocos2d/CCNode.m b/cocos2d/CCNode.m
+index 3daf0bf..55cb059 100644
+--- a/cocos2d/CCNode.m
++++ b/cocos2d/CCNode.m
+@@ -324,7 +324,7 @@ - (void)cleanup
+ 
+ - (NSString*) description
+ {
+-	return [NSString stringWithFormat:@"<%@ = %08X | Tag = %i>", [self class], self, tag_];
++	return [NSString stringWithFormat:@"<%@ = %p | Tag = %i>", [self class], self, tag_];
+ }
+ 
+ - (void) dealloc
+diff --git a/cocos2d/CCParticleBatchNode.m b/cocos2d/CCParticleBatchNode.m
+index e85dc94..4150f74 100644
+--- a/cocos2d/CCParticleBatchNode.m
++++ b/cocos2d/CCParticleBatchNode.m
+@@ -170,7 +170,7 @@ -(id)initWithFile:(NSString *)fileImage capacity:(NSUInteger)capacity useQuad:(B
+ 
+ -(NSString*) description
+ {
+-	return [NSString stringWithFormat:@"<%@ = %08X | Tag = %i>", [self class], self, tag_ ];
++	return [NSString stringWithFormat:@"<%@ = %p | Tag = %i>", [self class], self, tag_ ];
+ }
+ 
+ -(void)dealloc
+diff --git a/cocos2d/CCRibbon.m b/cocos2d/CCRibbon.m
+index e976c2c..d7e8c64 100644
+--- a/cocos2d/CCRibbon.m
++++ b/cocos2d/CCRibbon.m
+@@ -311,7 +311,7 @@ -(id)init
+ 
+ - (NSString*) description
+ {
+-	return [NSString stringWithFormat:@"<%@ = %08X | end = %i, begin = %i>", [self class], self, end, begin];
++	return [NSString stringWithFormat:@"<%@ = %p | end = %i, begin = %i>", [self class], self, end, begin];
+ }
+ 
+ - (void) dealloc
+diff --git a/cocos2d/CCScheduler.m b/cocos2d/CCScheduler.m
+index 3e8ee60..1a5bc87 100644
+--- a/cocos2d/CCScheduler.m
++++ b/cocos2d/CCScheduler.m
+@@ -128,7 +128,7 @@ -(id) initWithTarget:(id)t selector:(SEL)s interval:(ccTime) seconds repeat:(uin
+ 
+ - (NSString*) description
+ {
+-	return [NSString stringWithFormat:@"<%@ = %08X | target:%@ selector:(%@)>", [self class], self, [target class], NSStringFromSelector(selector)];
++	return [NSString stringWithFormat:@"<%@ = %p | target:%@ selector:(%@)>", [self class], self, [target class], NSStringFromSelector(selector)];
+ }
+ 
+ -(void) dealloc
+diff --git a/cocos2d/CCSprite.m b/cocos2d/CCSprite.m
+index eca36d9..62b0919 100644
+--- a/cocos2d/CCSprite.m
++++ b/cocos2d/CCSprite.m
+@@ -281,7 +281,7 @@ -(id) initWithBatchNode:(CCSpriteBatchNode*)batchNode rectInPixels:(CGRect)rect
+ 
+ - (NSString*) description
+ {
+-	return [NSString stringWithFormat:@"<%@ = %08X | Rect = (%.2f,%.2f,%.2f,%.2f) | tag = %i | atlasIndex = %i>", [self class], self,
++	return [NSString stringWithFormat:@"<%@ = %p | Rect = (%.2f,%.2f,%.2f,%.2f) | tag = %i | atlasIndex = %i>", [self class], self,
+ 			rect_.origin.x, rect_.origin.y, rect_.size.width, rect_.size.height,
+ 			tag_,
+ 			atlasIndex_
+diff --git a/cocos2d/CCSpriteBatchNode.m b/cocos2d/CCSpriteBatchNode.m
+index ebce133..d0e2444 100644
+--- a/cocos2d/CCSpriteBatchNode.m
++++ b/cocos2d/CCSpriteBatchNode.m
+@@ -126,7 +126,7 @@ -(id)initWithFile:(NSString *)fileImage capacity:(NSUInteger)capacity
+ 
+ - (NSString*) description
+ {
+-	return [NSString stringWithFormat:@"<%@ = %08X | Tag = %i>", [self class], self, tag_ ];
++	return [NSString stringWithFormat:@"<%@ = %p | Tag = %i>", [self class], self, tag_ ];
+ }
+ 
+ -(void)dealloc
+diff --git a/cocos2d/CCSpriteFrame.m b/cocos2d/CCSpriteFrame.m
+index b3533ca..001ded3 100644
+--- a/cocos2d/CCSpriteFrame.m
++++ b/cocos2d/CCSpriteFrame.m
+@@ -64,7 +64,7 @@ -(id) initWithTexture:(CCTexture2D*)texture rectInPixels:(CGRect)rect rotated:(B
+ 
+ - (NSString*) description
+ {
+-	return [NSString stringWithFormat:@"<%@ = %08X | TextureName=%d, Rect = (%.2f,%.2f,%.2f,%.2f)> rotated:%d, offset = (%.2f,%.2f), originalSize w %.2f h %.2f)", [self class], self,
++	return [NSString stringWithFormat:@"<%@ = %p | TextureName=%d, Rect = (%.2f,%.2f,%.2f,%.2f)> rotated:%d, offset = (%.2f,%.2f), originalSize w %.2f h %.2f)", [self class], self,
+ 			texture_.name,
+ 			rect_.origin.x,
+ 			rect_.origin.y,
+diff --git a/cocos2d/CCSpriteFrameCache.m b/cocos2d/CCSpriteFrameCache.m
+index e46204a..14b32b6 100644
+--- a/cocos2d/CCSpriteFrameCache.m
++++ b/cocos2d/CCSpriteFrameCache.m
+@@ -80,7 +80,7 @@ -(id) init
+ 
+ - (NSString*) description
+ {
+-	return [NSString stringWithFormat:@"<%@ = %08X | num of sprite frames =  %i>", [self class], self, [spriteFrames_ count]];
++	return [NSString stringWithFormat:@"<%@ = %p | num of sprite frames =  %i>", [self class], self, [spriteFrames_ count]];
+ }
+ 
+ -(void) dealloc
+diff --git a/cocos2d/CCTMXXMLParser.m b/cocos2d/CCTMXXMLParser.m
+index 16b7330..c652252 100644
+--- a/cocos2d/CCTMXXMLParser.m
++++ b/cocos2d/CCTMXXMLParser.m
+@@ -229,7 +229,7 @@ -(void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName name
+ 		else if( [orientationStr isEqualToString:@"hexagonal"])
+ 			orientation_ = CCTMXOrientationHex;
+ 		else
+-			CCLOG(@"cocos2d: TMXFomat: Unsupported orientation: %@", orientation_);
++			CCLOG(@"cocos2d: TMXFomat: Unsupported orientation: %d", orientation_);
+ 
+ 		mapSize_.width = [[attributeDict valueForKey:@"width"] intValue];
+ 		mapSize_.height = [[attributeDict valueForKey:@"height"] intValue];
+diff --git a/cocos2d/CCTexture2D.m b/cocos2d/CCTexture2D.m
+index 9f16de4..d9924a7 100644
+--- a/cocos2d/CCTexture2D.m
++++ b/cocos2d/CCTexture2D.m
+@@ -194,7 +194,7 @@ - (void) dealloc
+ 
+ - (NSString*) description
+ {
+-	return [NSString stringWithFormat:@"<%@ = %08X | Name = %i | Dimensions = %ix%i | Coordinates = (%.2f, %.2f)>", [self class], self, name_, width_, height_, maxS_, maxT_];
++	return [NSString stringWithFormat:@"<%@ = %p | Name = %i | Dimensions = %ix%i | Coordinates = (%.2f, %.2f)>", [self class], self, name_, width_, height_, maxS_, maxT_];
+ }
+ 
+ -(CGSize) contentSize
+diff --git a/cocos2d/CCTextureAtlas.m b/cocos2d/CCTextureAtlas.m
+index d72e2bd..c010906 100644
+--- a/cocos2d/CCTextureAtlas.m
++++ b/cocos2d/CCTextureAtlas.m
+@@ -112,7 +112,7 @@ -(id) initWithTexture:(CCTexture2D*)tex capacity:(NSUInteger)n
+ 
+ -(NSString*) description
+ {
+-	return [NSString stringWithFormat:@"<%@ = %08X | totalQuads =  %i>", [self class], self, totalQuads_];
++	return [NSString stringWithFormat:@"<%@ = %p | totalQuads =  %i>", [self class], self, totalQuads_];
+ }
+ 
+ -(void) dealloc
+diff --git a/cocos2d/CCTextureCache.m b/cocos2d/CCTextureCache.m
+index c752027..d074060 100644
+--- a/cocos2d/CCTextureCache.m
++++ b/cocos2d/CCTextureCache.m
+@@ -111,7 +111,7 @@ -(id) init
+ 
+ - (NSString*) description
+ {
+-	return [NSString stringWithFormat:@"<%@ = %08X | num of textures =  %i | keys: %@>",
++	return [NSString stringWithFormat:@"<%@ = %p | num of textures =  %i | keys: %@>",
+ 			[self class],
+ 			self,
+ 			[textures_ count],
+diff --git a/cocos2d/Platforms/iOS/ES1Renderer.m b/cocos2d/Platforms/iOS/ES1Renderer.m
+index b56b75e..1769df0 100644
+--- a/cocos2d/Platforms/iOS/ES1Renderer.m
++++ b/cocos2d/Platforms/iOS/ES1Renderer.m
+@@ -215,7 +215,7 @@ -(CGSize) backingSize
+ 
+ - (NSString*) description
+ {
+-	return [NSString stringWithFormat:@"<%@ = %08X | size = %ix%i>", [self class], self, backingWidth_, backingHeight_];
++	return [NSString stringWithFormat:@"<%@ = %p | size = %ix%i>", [self class], self, backingWidth_, backingHeight_];
+ }
+ 
+ 
+diff --git a/cocos2d/Support/CCArray.m b/cocos2d/Support/CCArray.m
+index 7ebe2c4..f3d229a 100644
+--- a/cocos2d/Support/CCArray.m
++++ b/cocos2d/Support/CCArray.m
+@@ -417,7 +417,7 @@ - (void) dealloc
+ 
+ - (NSString*) description
+ {
+-	NSMutableString *ret = [NSMutableString stringWithFormat:@"<%@ = %08X> = ( ", [self class], self];
++	NSMutableString *ret = [NSMutableString stringWithFormat:@"<%@ = %p> = ( ", [self class], self];
+ 
+ 	for( id obj in self)
+ 		[ret appendFormat:@"%@, ",obj];
+-- 
+1.7.10
+

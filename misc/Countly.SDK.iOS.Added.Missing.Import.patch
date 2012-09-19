@@ -1,0 +1,26 @@
+From c41b1143887174b0abac0de02983582c3177df66 Mon Sep 17 00:00:00 2001
+From: Colin McCune <colin@zincroe.com>
+Date: Wed, 19 Sep 2012 12:38:32 -0400
+Subject: [PATCH] Added import statement for Apple's UIKit framework as it is
+ required dependency.
+
+The Countly class uses methods from the UIKit framework however it doesn't import that framework. This wont be a problem for most apps because the default project template for Xcode imports the UIKit framework in the apps Prefix.pch. However when an application doesn't use the provided Prefix.pch the Countly class will fail to compile.
+---
+ Countly.m |    1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Countly.m b/Countly.m
+index a20c14b..2a09774 100755
+--- a/Countly.m
++++ b/Countly.m
+@@ -17,6 +17,7 @@
+ 
+ #import "Countly.h"
+ #import "Countly_OpenUDID.h"
++#import <UIKit/UIKit.h>
+ #import <CoreTelephony/CTTelephonyNetworkInfo.h>
+ #import <CoreTelephony/CTCarrier.h>
+ 
+-- 
+1.7.10
+
