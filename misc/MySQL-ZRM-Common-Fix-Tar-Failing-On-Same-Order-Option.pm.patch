@@ -1,0 +1,11 @@
+--- /usr/lib/mysql-zrm/ZRM/Common.pm    2014-09-20 19:31:49.288321911 -0400
++++ /usr/lib/mysql-zrm/ZRM/Common-Fix-Tar-Failing-On-Same-Order-Option.pm.patch       2014-09-20 19:22:18.776321911 -0400
+@@ -91,7 +91,7 @@
+ our $MYSQL_ZRM_CONFIG_FILE=catfile( $MYSQL_ZRM_BASEDIR, "mysql-zrm.conf");
+ #Compress & Encrypt progs
+ our $TAR="tar";
+-our $TAR_COMPRESS_OPTIONS=" --same-owner -cpsC ";
++our $TAR_COMPRESS_OPTIONS=" --same-owner -cpC ";
+ our $TAR_UNCOMPRESS_OPTIONS=" --same-owner -xpsC ";
+ our $TAR_EXCLUDE_OPTION=" --exclude";
+ our $COMPRESS_FILENAME="backup-data";
