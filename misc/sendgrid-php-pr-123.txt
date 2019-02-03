@@ -1,0 +1,8 @@
+I noticed that the turn_off_ssl_verification option was no longer working in the latest version. I tracked the bug down with the switch to cURL. Under the hood it was directly using the value of turn_off_ssl_verification to set the cURL flag CURLOPT_SSL_VERIFYPEER but they actually have the opposite boolean meaning.
+
+CURLOPT_SSL_VERIFYPEER
+
+FALSE to stop cURL from verifying the peer's certificate. Alternate certificates to verify against can be specified with the CURLOPT_CAINFO option or a certificate directory can be specified with the CURLOPT_CAPATH option.
+Reference: http://php.net/manual/en/function.curl-setopt.php (CURLOPT_SSL_VERIFYPEER)
+
+https://github.com/sendgrid/sendgrid-php/pull/123

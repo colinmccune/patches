@@ -1,0 +1,23 @@
+From dbcdc89ef9fe1791db49c202fa3154558b30396f Mon Sep 17 00:00:00 2001
+From: Colin McCune <colin@colinmccune.ca>
+Date: Wed, 28 Jan 2015 21:03:46 -0500
+Subject: [PATCH] Fixes the turn_off_ssl_verification option so that it works
+ with cURL.
+
+---
+ lib/SendGrid.php | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/SendGrid.php b/lib/SendGrid.php
+index 27c099b3..5e40a05a 100644
+--- a/lib/SendGrid.php
++++ b/lib/SendGrid.php
+@@ -51,7 +51,7 @@ private function makeRequest($form) {
+     curl_setopt($ch, CURLOPT_POSTFIELDS, $form);
+     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+     curl_setopt($ch, CURLOPT_USERAGENT, 'sendgrid/' . $this->version . ';php');
+-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->options['turn_off_ssl_verification']);
++    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, !$this->options['turn_off_ssl_verification']);
+ 
+     $response = curl_exec($ch);
+ 
